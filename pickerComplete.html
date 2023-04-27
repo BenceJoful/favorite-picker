@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="initial-scale=1.0">
+<title>Picker Complete (with full list from Eric Fox's Puzzle Rules</title>
+<style>
+body {
+    background:#FFF;
+    color:#000;
+    font-family:verdana, sans-serif;
+    font-size:10pt;
+    margin:0;
+    padding:10px;
+}
+
+a:link, a:visited {
+    color:#008;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+a:active, a:hover {
+    color:#ACF;
+}
+
+.info {
+    font-weight:bold;
+}
+
+button {
+    font-family:inherit;
+    cursor:pointer;
+    border:0;
+    border-radius:3px;
+    padding:0.3em 0.5em;
+    background:#CCC;
+    color:#000;
+}
+
+button:hover {
+    background:#DDD;
+}
+
+button.disabled {
+    background:#DDD;
+    color:#888;
+    cursor:not-allowed;
+}
+
+button.disabled:hover {
+    background:#DDD;
+}
+
+#container {
+    position:relative;
+    margin-left:-10px;
+    margin-right:-10px;
+    padding:10px;
+    overflow:hidden;
+}
+
+@media (min-width:1024px) {
+    /* Put the found favorites beside the picking div when the window is sufficiently large */
+    #picking {
+        float:left;
+        width:636px;
+    }
+
+    #secondary {
+        margin-left:646px;
+    }
+}
+
+@media (min-width:1300px) {
+    /* Once we get to the point where 636px is less than half of the width of the screen, make the picking div just take up half */
+    #picking {
+        width:50%;
+    }
+
+    #secondary {
+        margin-left:51%;
+    }
+}
+
+#pick {
+    background:#58F;
+    color:#FFF;
+    font-size:larger;
+    font-weight:bold;
+    width:6em;
+    border-radius:5px;
+    margin-right:10px;
+}
+
+#pick.disabled {
+    background:#ACF;
+}
+
+#pick:hover {
+    background:#ACF;
+}
+
+.item-list {
+    padding:0;
+    list-style-type:none;
+    line-height:100px;
+}
+
+.item-list li {
+    margin:0;
+    display:inline-block;
+    height:100px;
+    width:100px;
+    line-height:100px;
+    border:3px solid transparent;
+    text-align:center;
+    position:relative;
+    vertical-align:top;
+    overflow:hidden;
+    border-radius:100%;
+    background:#F7F7F7;
+    color:#000;
+}
+
+.item-list li img {
+    vertical-align:middle;
+    max-height:100%;
+    max-width:100%;
+}
+
+.item-list li span {
+    display:inline-block;
+    vertical-align:middle;
+    line-height:1.2;
+}
+
+@media (max-width:636px) {
+    .item-list {
+        line-height:75px;
+    }
+
+    .item-list li {
+        line-height:75px;
+        height:75px;
+        width:75px;
+    }
+}
+
+@media (max-width:423px) {
+    .item-list {
+        line-height:50px;
+    }
+
+    .item-list li {
+        line-height:50px;
+        height:50px;
+        width:50px;
+    }
+}
+
+#evaluating li {
+    cursor:pointer;
+}
+
+#favorites li {
+    cursor:move;
+}
+
+.item-list li:hover {
+    background:#CDF;
+}
+
+.item-list.sorting li:hover {
+    background:#F7F7F7;
+}
+
+#evaluating li.selected {
+    border:3px solid #7AC;
+}
+
+#evaluating, #buttons {
+    text-align:center;
+    margin:auto;
+}
+
+#evaluating li.notice {
+    width:auto;
+    height:auto;
+    max-width:260px;
+    margin:auto;
+    background:#F7F7F7;
+    border-radius:10px;
+    padding:30px 30px;
+    color:#000;
+    text-align:center;
+    line-height:1.4;
+    cursor:auto;
+    font-size:10pt;
+}
+
+#buttons {
+    margin-top:30px;
+    position:relative;
+    z-index:3;
+}
+</style>
+</head>
+<body>
+<h1>Picker</h1>
+
+<p>You can include any content you want here.</p>
+
+<div id="container">
+
+<div id="picking">
+<ul id="evaluating" class="item-list" style="opacity: 1;"><li class="item"><span>Hashiwokakero</span></li><li class="item"><span>Regional Yajilin</span></li></ul>
+
+<p id="buttons"><button id="pick">Pick</button> <button id="pass">Pass</button> <button id="undo" class="">Undo</button> <button id="redo" class="disabled">Redo</button></p>
+</div>
+
+<div id="secondary">
+<h2>Found favorites</h2>
+
+<ol id="favorites" class="item-list"><li class="item"><span>Star Battle</span></li><li class="item"><span>Islands</span></li><li class="item"><span>ekawayeh</span></li><li class="item"><span>LITS</span></li><li class="item"><span>Tapa</span></li><li class="item"><span>Slitherlink</span></li><li class="item"><span>Akari</span></li><li class="item"><span>Fillomino</span></li><li class="item"><span>Tapa-Like Loop</span></li><li class="item"><span>Coral</span></li><li class="item"><span>Nurikabe</span></li><li class="item"><span>Sashigane</span></li></ol>
+</div>
+</div>
+<script src="./Picker_files/jquery-1.12.4.min.js.download"></script>
+<script src="./Picker_files/picker.js.download"></script>
+<script src="./Picker_files/picker-ui.js.download"></script>
+<script src="./Picker_files/Sortable.min.js.download"></script>
+<script>
+'use strict';
+
+var list = [
+"ABC Box",
+"Aho-ni-Narikire",
+"Aho-ni-Narikire (Fillomino)",
+"Akari",
+"Akari (Antiknight)",
+"Akari (Loose)",
+"Akari (Mirror)",
+"Akari (Regions)",
+"Akichiwake",
+"Akichiwake (Attained)",
+"Alcazar",
+"Alike",
+"Alike (Limited)",
+"All or Nothing",
+"Alternate Loop",
+"Amibo a.k.a. Amiibo",
+"Angle Loop",
+"Anglers a.k.a. Out Fishing",
+"Anglers (Pentomino)",
+"Anglers (Sum)",
+"Anguru",
+"Ant Mill",
+"Anti-Letter Tetromino",
+"Anti-Signal Loop",
+"Aqre",
+"Aqre (All or Nothing)",
+"Aqre (Borders)",
+"Aqre (Outside)",
+"Aqre (Tapa)",
+"Aqre-Like Loop",
+"Aquarium",
+"Araf",
+"Araf (Different Neighbors)",
+"Araf (Inequality)",
+"Araf (Line)",
+"Araf (Skyscrapers)",
+"Arboretum",
+"Archipelago",
+"Area Division a.k.a. ABC Division, Block Party, or Block Puzzle",
+"Area Numbers",
+"Area Sums",
+"Army Ants",
+"Arrow Maze¹",
+"Arrow Maze¹ (Diagonal)",
+"Arrow Maze²",
+"Arrow Web",
+"Arrows",
+"Arrows Go Around",
+"Arukone",
+"Ayeheya",
+"BACA",
+"Balance Loop",
+"Balance Loop (Full)",
+"Balance Loop (Half Balance)",
+"Balance Loop (Inequality)",
+"Bangalore Mirror",
+"Barbed Wire",
+"Battenburg Painting",
+"Battleships",
+"Battleships (Digital)",
+"Battleships (Even Rows/Columns)",
+"Battleships (Lighthouses)",
+"Battleships (Loop)",
+"Battleships (Minesweeper)",
+"Barns",
+"Belarusian Snake",
+"Big Core",
+"Binairo a.k.a. Unruly or Takuzu",
+"Black and White",
+"Blackout Dominoes",
+"Blind Spot",
+"Blood Type",
+"Bonsan",
+"Bonsan (Diagonal)",
+"Border Block",
+"Bosnian Road",
+"Bossa Nova a.k.a. Bosanowa",
+"Boulders",
+"Bricklayer¹",
+"Bricklayer²",
+"Bricks",
+"Bright Light",
+"Briquet",
+"Brownies",
+"Building Walk",
+"Canal View",
+"Candles",
+"Candy Crush",
+"Capsule Maker",
+"Cards",
+"Castle Wall",
+"Castle Wall (Unequal Lengths)",
+"Castle Wall (Stealth)",
+"Catenary Loop D",
+"Catloop",
+"Catwalk",
+"Cave a.k.a. Bag or Corral",
+"Cave (Aqre)",
+"Cave (Half and Half)",
+"Cave (Minesweeper)",
+"Cave (Product)",
+"Cell Land",
+"Celltinels",
+"Chaindom",
+"Chained Block",
+"Chaos",
+"Chat Room",
+"Checkerboard",
+"Checkerboard (Half and Half)",
+"Chiaroscuro",
+"Chiaroscuro (Borders)",
+"Chocolate Banana",
+"Chocolate Banana (Aqre)",
+"Chocona",
+"Chocona (Connectivity)",
+"Chocona (Squares)",
+"Circles and Squares",
+"City Space",
+"Cliques",
+"Clock Place",
+"Clouds a.k.a. Rain Clouds or Radar",
+"Cocktail Lamp",
+"Coded Dissection",
+"Coffee Milk",
+"Cogs",
+"Coins",
+"Cojun",
+"Column Dance",
+"Combiblock",
+"Comet",
+"Compass",
+"Congruence Circuit",
+"Consecutive Loop",
+"Consecutive Quads",
+"Contact",
+"Context",
+"Coral",
+"Coral (Regions)",
+"Coral (Skyscrapers)",
+"Corridors",
+"Countries",
+"Country Road",
+"Country Road (Dance)",
+"Creek",
+"Creek (Aqre)",
+"Crescendo",
+"Cross Loop a.k.a. Spur Loop or Shupururupu",
+"Cross the Loop",
+"Cross the Streams",
+"Cross the Streams (Arbitrary Lies)",
+"Cross the Streams (Black and White)",
+"Cross the Streams (Even Rows/Columns)",
+"Cross the Streams (Inverted)",
+"Cross the Streams (LITS)",
+"Cross the Streams (Matching Sections)",
+"Cross the Streams (Neanderthal)",
+"Cross the Streams (Windows)",
+"Crossbreed",
+"Crosslink",
+"Crossstitch",
+"Crystal Mine",
+"Curfew",
+"Curli",
+"Curve Data",
+"Curving Road a.k.a. Kabingurodo",
+"Cut Blocks",
+"Cutter",
+"Daily Loop a.k.a. Deiri Loop",
+"Dead Angle",
+"Detour",
+"Diagonal Chains",
+"Diamonds",
+"Different Neighbors",
+"Direction",
+"Disco a.k.a. Disconnection",
+"Disorderly Loop",
+"Disorderly Loop (Full)",
+"Distopia",
+"Dominion",
+"Dominion (Transparent)",
+"Domino Search a.k.a. Dominoes, Dominosa, or Domino Hunt",
+"Doppelblock",
+"Dosun-Fuwari",
+"Dotchi Dotchi Loop",
+"Dotchi Loop",
+"Dots and Lines a.k.a. Tentosen",
+"Double",
+"Double Back",
+"Double Back (Forgetful)",
+"Double Choco",
+"Double or Nothing",
+"Down Down",
+"Draw a Line a.k.a. Senwohiku",
+"Draw Arrow",
+"Draw Hands",
+"Dream Sequence",
+"Dutch Loop",
+"Easy as ABC",
+"Easy as ABC (No Touch)",
+"Easy as ABC (Not First)",
+"Easy as ABC (Regions)",
+"Easy as ABC (Transparent)",
+"Edamame",
+"Edamame (Symmetry)",
+"Edge Pattern",
+"Eels",
+"Elbow Room a.k.a. Kakeeru",
+"Elbschiffer Loop",
+"Enclosures a.k.a. Renkatsu",
+"Endpoints",
+"Entry Exit",
+"Equality",
+"Erqaqre",
+"Euler Square",
+"Even Place",
+"Every Second Straight",
+"Every Second Turn",
+"Evolmino",
+"Family Photo",
+"Family Photo (Antimatter)",
+"Fillarrow",
+"Fillmat",
+"Fillomino",
+"Fillomino (Arrows)",
+"Fillomino (Border Gaps)",
+"Fillomino (Borders)",
+"Fillomino (Checkered)",
+"Fillomino (Line)",
+"Fillomino (Odd/Even)",
+"Fillomino (Outside)",
+"Fillomino (No Rectangles)",
+"Fillomino (Nonconsecutive)",
+"Fillomino (Path)",
+"Fillomino (Shikaku)",
+"Fillomino (Snake)",
+"Fillomino (Symmetry)",
+"Fillomino (Trinudo)",
+"Fireworks a.k.a. Hanabi",
+"Forbid Four a.k.a. Fobidoshi",
+"Foreshadow",
+"Fortress",
+"Four-Color Tiles",
+"Four Winds a.k.a. Wall Logic",
+"Foursight",
+"Frames",
+"Free Three",
+"Frozen Pentominoes",
+"Fungus",
+"Futoshiki",
+"Futoshiki (Nonconsecutive)",
+"Fuzuli",
+"Gako",
+"Gaps",
+"Gemini Block",
+"Gemini Loop",
+"Gems and Stones",
+"Geradeweg",
+"Goishi Hiroi a.k.a. Hiroimono",
+"Golds and Diamonds",
+"Golem Grad",
+"Graffiti",
+"Grand Tour a.k.a. Monorail",
+"Gravity Room",
+"Greener Grasses",
+"Grid Logic",
+"Guide Arrow a.k.a. Compass",
+"Guide Arrow (Double)",
+"Haisu",
+"Haisu (Double Back)",
+"Haisu (Odd/Even)",
+"Hakoiri-Masashi",
+"Ham Sandwich",
+"Hamle",
+"Hamle (Paths)",
+"Hanare-Gumi",
+"Hashiwokakero a.k.a. Jieheshou",
+"Haunted Mirror Maze",
+"Heavy Dots",
+"Hebi-Ichigo",
+"Herugolf",
+"Heterocut",
+"Heteromino",
+"Heya-Bon",
+"Heyablock",
+"Heyacrazy",
+"Heyapin",
+"Heyashin",
+"Heyawake",
+"Heyawake (No 2x2)",
+"Heyawake (Squares)",
+"Heyawake (Symmetry)",
+"Heyawatashi a.k.a. Space Travel",
+"Hidato",
+"Hidato (Knight)",
+"Hidato (Kropki)",
+"Hidden Words",
+"Hideout Fences",
+"Hinge a.k.a. Chiyotsui",
+"Hitori a.k.a. Leave Me Alone",
+"Hitori (Double)",
+"Hitori (Nonconsecutive)",
+"Hitori (Regions)",
+"Hitori (Strong)",
+"Hitori-Reversi",
+"Homomino",
+"Hotaru Beam a.k.a. Firefly",
+"Hundred",
+"Hydra",
+"Hypermetropia",
+"I Hope It’s Sunny",
+"I-Loop a.k.a. Irupu",
+"Icebarn",
+"Icebarn (X)",
+"Icelom",
+"Icelom 2",
+"Icewalk a.k.a. Ice Walk",
+"Ichimaga",
+"Ichimaga (Crossing)",
+"Ichimaga (Magnetic)",
+"If I Could Be a Constellation",
+"Illiterate Loop",
+"Illumination",
+"Illustration",
+"Increasing Distances",
+"Inner Coral",
+"International Borders",
+"Irunuri",
+"Island",
+"Island Hopper",
+"It’s Yours",
+"Ivy",
+"Japanese Arrows",
+"Japanese Arrows (Complete)",
+"Japanese Sums",
+"Japanese Sums (Battleships)",
+"Japanese Sums (Easy As)",
+"Joint Cells",
+"Jotunloop",
+"Jumping Knight a.k.a. Toba Knight",
+"Juosan",
+"Juosan-Like Loop",
+"Kaero a.k.a. Return Home",
+"Kaidanshibari a.k.a. Stairwell",
+"KaitoRamma a.k.a. Cutting the Gordian Knot",
+"KaitoRamma (New)",
+"Kakoikomi a.k.a. Enclosure",
+"Kakurasu a.k.a. Box",
+"Kakuro a.k.a. Cross Sums",
+"Kakuro (Consecutive)",
+"Kakuro (Consecutive Pairs)",
+"Kakuro (Double)",
+"Kakuro (Duplicate)",
+"Kakuro (Gapped)",
+"Kakuro (Multiplication)",
+"Kakuro (No Touch)",
+"Kakuro (Nonconsecutive)",
+"Kakuru",
+"Kapetto",
+"Kazunori",
+"Kersnap a.k.a. The Great Divide",
+"Kin-Kon-Kan",
+"Knossos",
+"Koburin",
+"Koburin (Double)",
+"Kouchoku",
+"Kropki",
+"Kropki (Pairs)",
+"Kropki Loop",
+"Kurochute a.k.a. Black Shoot",
+"Kurochute (Double)",
+"Kuroclone",
+"Kuroclone (Connected)",
+"Kurodoko a.k.a. Kuromasu",
+"Kurodoko (Double)",
+"Kurodoko (Even Rows/Columns)",
+"Kurohappo",
+"Kurohori",
+"Kuromasunuri",
+"Kuroshiro Loop",
+"Kurotto a.k.a. Kuroyunitto",
+"Kurotto (Aqre)",
+"Kurotto (Connections)",
+"Kurotto (Different Sizes)",
+"Kurotto (No 2x2)",
+"Kurotto (Tapa)",
+"Kurotto (Transparent)",
+"Kurotto (Windows)",
+"Kusabi",
+"L-Dissection",
+"L-Labels",
+"L-Mode",
+"L-Route",
+"La Paz",
+"La Paz (Yajisan-Kazusan)",
+"Lakes",
+"Land and Sea",
+"Land Measurement a.k.a. Land Survey",
+"Largest Number",
+"Laser",
+"Latin Pointers",
+"Latin Square",
+"Leaf Vein",
+"Liar Loop",
+"Light",
+"Light and Shadow¹",
+"Light and Shadow² a.k.a. Hikatokage",
+"Lighthouses",
+"Line of Sight",
+"Linesweeper a.k.a. Minesweeper Loop",
+"Linked Signals",
+"Litherslink",
+"LITS a.k.a. Nuruomino",
+"LITS+",
+"LITS (Baby)",
+"LITS (Different)",
+"LITS (Double)",
+"LITS (Easy As)",
+"LITSO",
+"Lohkous",
+"Lohkous (Scattered)",
+"Lollipops",
+"Look-Air",
+"Look-Air (Connected)",
+"Look-Air (Easy As)",
+"Look-Air (Loop)",
+"Loom",
+"Loop Special a.k.a. Kanjo",
+"Loop With Symmetrical Segments",
+"Loop 12",
+"Loopfinder",
+"Loopki",
+"Loops and Bounds",
+"Lost Sums",
+"LOTS",
+"Magatama",
+"Magic Order",
+"Magic Snail",
+"Magic Summer",
+"Magnets",
+"Majority Place",
+"Makaro",
+"Manekingeto a.k.a. Gate of the Mannequins",
+"Martini",
+"Maruchipurunanba a.k.a. Multiple Number",
+"Masaguchi",
+"Masyu",
+"Masyu (Alternating)",
+"Masyu (Deformable)",
+"Masyu (Full)",
+"Masyu (Grey)",
+"Masyu (No U-Turns)",
+"Masyu (Semi-Liar)",
+"Masyu (Short)",
+"Masyu (Switch)",
+"Masyu (Symmetric)",
+"Masyu (Total)",
+"Masyu (Unequal Lengths)",
+"Masyu (Yajilin)",
+"Mathrax",
+"Matryoshka",
+"Matryoshka (Castle Wall)",
+"Max Length a.k.a. Maximal Lengths",
+"Maxi Loop",
+"Maxi Snake",
+"Maximal Archipelago",
+"Maze Maker",
+"Meadows",
+"Meandering Numbers",
+"Meidjuluk",
+"Meiroyashiki a.k.a. Maze House",
+"Mejilink",
+"Menseki",
+"Midloop",
+"Midloop (Full)",
+"Midloop (Total)",
+"Midloop (Unequal Lengths)",
+"Milk Tea",
+"Minarism",
+"Minesweeper",
+"Minesweeper (Antiknight)",
+"Minesweeper (Double)",
+"Minesweeper (Even Rows/Columns)",
+"Minesweeper (Sudoku)",
+"Mini Coral",
+"Minor Arrow",
+"Mintonette",
+"Mirror Place",
+"Mirror Universe",
+"Missing Corners",
+"Moc Macek",
+"Mochikoro",
+"Mochinyoro",
+"Moon and Sun",
+"Moon or Sun a.k.a. Moonsun",
+"Moonlight a.k.a. Star Clusters",
+"Mosaic",
+"Mukkonn Enn",
+"Myopia",
+"Myopia (Full)",
+"Myopia (Short)",
+"Nagareru-Loop",
+"Nagareru-Loop (Crossing)",
+"Nagenawa",
+"Nanameguri",
+"Nanochain",
+"Nanpitsu",
+"Nanro",
+"Nanro (Signpost)",
+"Nanro (Skyscrapers)",
+"Nanro (Tapa)",
+"Nanro-Like Loop",
+"Nansuke a.k.a. Number Skeleton, Crisscross, Fill In Crossword, or Cruzadex",
+"Nawabari",
+"Neighbor Areas",
+"Neighbors",
+"Nemo",
+"NEWS",
+"NEWS (New)",
+"Nibunnogo",
+"NIKOJI",
+"No Four in a Row a.k.a. Marupeke or OX-Place",
+"No Three a.k.a. Ichisu",
+"No Same Sums",
+"No Touch Sums",
+"Nondango",
+"Nonogram a.k.a. Picross, Paint by Numbers, or Pic-a-Pix",
+"Nonotour",
+"Norikabe a.k.a. Norinuri",
+"Norinori",
+"Norinori (Connectivity)",
+"Norinorinori",
+"Not Alone",
+"Number Ball a.k.a. Nanbaboru",
+"Number Branch",
+"Number Chain",
+"Number Cross",
+"Number In Order",
+"Number Rope",
+"Numbered Rooms",
+"Numberlink",
+"Numberlink (Crossing)",
+"Numberlink (Wiggly)",
+"Numbrix",
+"Numericlone",
+"Nura-Knight",
+"Nuraf",
+"Nuri-Uzu",
+"Nuribaka",
+"Nuribou",
+"Nuribou (LITSO)",
+"Nurikabe",
+"Nurikabe (Domino)",
+"Nurikabe (Either-Or)",
+"Nurikabe (Half and Half)",
+"Nurikabe (No Cycle)",
+"Nurikabe (Pairs)",
+"Nurikabe (Pento)",
+"Nurikabe (Skyscrapers)",
+"Nurikabe (Windows)",
+"Nurikabe (Yajisan-Kazusan)",
+"Nurikabe-Like Loop",
+"Nurimaze a.k.a. Nuri-Maze",
+"Nurimisaki",
+"O X Loop",
+"Oasis",
+"Obstacle",
+"Offspring",
+"Okiwake",
+"OLIX a.k.a. Orikusu",
+"One or All a.k.a. Triplets",
+"One Point Loop",
+"One Room One Door",
+"Onsen-Meguri",
+"Opposition",
+"Orbital",
+"Otoshi-Ana",
+"Out of Sight",
+"Overlapping Squares",
+"Ovotovata",
+"Ovotovata (Full)",
+"Oyakodori",
+"Paint by Pairs",
+"Paint Loop",
+"Paintarea",
+"Pair Mark",
+"Pairs of Fish",
+"Palisade encompasses FourCells and FiveCells",
+"Palisade (Different Neighbors)",
+"Parallel Circuit",
+"Parquet a.k.a. Connector",
+"Parrot Loop",
+"Particle Zoo",
+"Partiti",
+"Passage",
+"Passenger Ships",
+"Password Path",
+"Pastries",
+"Pata",
+"Patchwork¹",
+"Patchwork²",
+"Patrol",
+"Pearl Necklace",
+"Pencils",
+"Penta Touch a.k.a. Touching Pentominoes or Blokus",
+"Pentasight",
+"Pentomino",
+"Pentomino Areas",
+"Pentominonogram",
+"Pentominous",
+"Pentominous (Borders)",
+"Pentominous (Checkered)",
+"Pentominous (Radar)",
+"Pentopia",
+"Pentopia (Half and Half)",
+"Pentopia (Transparent)",
+"Pentosnake",
+"Persistence of Memory",
+"Pile Up",
+"Pilgrimage",
+"Pipelink",
+"Pipelink Returns",
+"Pipes",
+"Place by Product",
+"Planks",
+"Plus Link",
+"Point to Numbers",
+"Pointer Loop",
+"Pointing at the Crowd",
+"Pomoro",
+"Portal Loop",
+"Products",
+"Products (Antiknight)",
+"Products (X)",
+"Prohibition Division",
+"Putteria",
+"Quarry",
+"Queens",
+"Quiver Plot",
+"Ququ",
+"Rail Pool",
+"Rail Pool (Dance)",
+"Rail Pool (Elimination)",
+"Rail Pool (Forgetful)",
+"Rail Pool (Odd/Even)",
+"Rail Pool (Partial)",
+"Rail Pool (Unequal Lengths)",
+"Rainbow",
+"Range",
+"Rassi Silai",
+"Rassi Silai (Forgetful)",
+"Rassi Silai (Skyscrapers)",
+"Reachability",
+"Rectangle Slider",
+"Recto",
+"Reflect Link",
+"Regional Loop",
+"Remembered Lengths",
+"Renban",
+"Renban-Madoguchi",
+"Renzoku",
+"Ring-Ring",
+"Ring-Ring (Masyu)",
+"Ring-Ring (No Squares)",
+"Ring-Ring (Turns)",
+"Ripple Arrows",
+"Ripple Effect a.k.a. Hakyuu",
+"Rock Paper Scissors",
+"Roller Coaster",
+"Roma a.k.a. Roichima",
+"Rooms of Factors a.k.a. Factoring Rooms or Inshi no Heya",
+"Round Trip",
+"Round Trip (Unequal Lengths)",
+"Route Map",
+"Rumble Wall",
+"Russian Loop",
+"Sandwich",
+"Sashigane encompasses L-Route, a.k.a. Loute",
+"Sashigane (Tatami)",
+"Sashikabe",
+"Sashikaku a.k.a. Difference Rectangles",
+"Sashikazune",
+"Satogaeri a.k.a. Homecoming",
+"Scrabble",
+"Scrin",
+"Sea Serpent",
+"Searcher",
+"Seethrough a.k.a. Doors",
+"Senro a.k.a. Bahnlinie, Bahntrasse, or Railroad",
+"Sentinel View",
+"Sentinels",
+"Separation",
+"Seramik",
+"Seramik (Friendly)",
+"Shakashaka",
+"Shakashaka (Half and Half)",
+"Shakashaka (No Squares)",
+"Shape Division",
+"Shapeloop",
+"Shaping the Loop",
+"Shikaku",
+"Shikaku (Ratio)",
+"Shikaku Cut",
+"Shimaguni a.k.a. Islands",
+"Shimaguni (Aqre)",
+"Shimaguni (Connected)",
+"Shimenawa",
+"Shingoki",
+"Shinro",
+"Shirohappo",
+"Shirokuro Link",
+"Shirokuro Pipe",
+"Shirokurodo",
+"Shugaku a.k.a. School Trip",
+"Signal Loop",
+"Simple Gako",
+"Simple Loop",
+"Simple Loop (Crossing)",
+"Simple Loop (Short)",
+"Simple Loop (Skyscrapers)",
+"Simple Loop (Unequal Lengths)",
+"Sky Walk",
+"Skyscrapers",
+"Skyscrapers (Antiknight)",
+"Skyscrapers (Double)",
+"Skyscrapers (First Invisible)",
+"Skyscrapers (Fractional)",
+"Skyscrapers (Haido)",
+"Skyscrapers (No Touch)",
+"Skyscrapers (Nonconsecutive)",
+"Skyscrapers (Panoramic)",
+"Skyscrapers (Parks)",
+"Skyscrapers (Sum)",
+"Skyscrapers (With Mirrors)",
+"Skyscrapers (X)",
+"Slalom a.k.a. Suraromu",
+"Slant a.k.a. Gokigen Naname",
+"Slash Pack",
+"Slitherlink",
+"Slitherlink (All 0s)",
+"Slitherlink (All 1s)",
+"Slitherlink (All 2s)",
+"Slitherlink (All 3s)",
+"Slitherlink (Clones)",
+"Slitherlink (Domino)",
+"Slitherlink (Even Rows/Columns)",
+"Slitherlink (Full)",
+"Slitherlink (Interior Path)",
+"Slitherlink (Pentomino)",
+"Slitherlink (Polygraph)",
+"Slitherlink (Relation)",
+"Slitherlink (Skyscrapers)",
+"Slitherlink (Sum)",
+"Slitherlink (Switch)",
+"Slitherlink (Tetromino)",
+"Slitherlink (Touching)",
+"Slitherlink (Turning)",
+"Slitherlink (Unequal Lengths)",
+"Slitherlink (Vertex)",
+"Slovak Sums",
+"Smullyanic Dynasty",
+"Snake",
+"Snake (Graffiti)",
+"Snake (Horse)",
+"Snake (Myopia)",
+"Snake (Regions)",
+"Snake (Slitherlink)",
+"Snake (True/False)",
+"Snake Egg",
+"Snake Pit",
+"Snake Pit (X)",
+"Snakes and Adders",
+"Snakescope",
+"Soulmates",
+"Square Jam",
+"Square Jam (Either Or)",
+"Square Jam (Skyscrapers)",
+"Square Jam (Sum)",
+"Square Jam (Touchy)",
+"Square Jam (Voxas)",
+"Square-Block Loop",
+"Star Battle",
+"Star Battle (Clones)",
+"Star Battle (Different Totals)",
+"Star Battle (Double)",
+"Star Battle (Gaps)",
+"Star Battle (Incomplete)",
+"Star Battle (Myopia)",
+"Star Battle (Offset)",
+"Star Battle (Palindrome)",
+"Star Battle (Shapeless)",
+"Star Battle (Small Regions)",
+"Star Battle (Tilt)",
+"Stardust",
+"Starsweeper",
+"Statue Park",
+"Statue Park (Even Rows/Columns)",
+"Statue Park (Half and Half)",
+"Statue Park (Minesweeper)",
+"Statue Park (No Reflection)",
+"Statue Park (Tapa)",
+"Statue Park (Yajisan-Kazusan)",
+"Statue Wall",
+"Stitches",
+"Stostone",
+"Subomino",
+"Subwhirl",
+"Sudoku",
+"Suguru a.k.a. Capsules",
+"Sukima",
+"Sukima-Atsume",
+"Suko",
+"Sukoro a.k.a. Infection",
+"Sukoro-Room a.k.a. Suukoroheya",
+"Suku",
+"Suku (Diagonal)",
+"Sum Box",
+"Sum Connection",
+"Sum Line",
+"Summon",
+"Sundoko",
+"Sunglasses",
+"Sunglassopia",
+"Surf",
+"Survo",
+"Sutoreto a.k.a. Straight Cross",
+"Symlink",
+"Symmetry Maze",
+"Symmetry Place",
+"Syndicate",
+"Syuma",
+"Taj Mahal",
+"Takoyaki",
+"Takoyaki (Crossing)",
+"Tapa",
+"Tapa (Alcove)",
+"Tapa (Alternative)",
+"Tapa (Aqre)",
+"Tapa (Big Clues)",
+"Tapa (Borders)",
+"Tapa (Cloned Clues)",
+"Tapa (Domino)",
+"Tapa (Double)",
+"Tapa (Elimination)",
+"Tapa (Even Rows/Columns)",
+"Tapa (Half and Half)",
+"Tapa (Hungarian)",
+"Tapa (Islands)",
+"Tapa (Line)",
+"Tapa (LITS)",
+"Tapa (Make Room)",
+"Tapa (Neanderthal)",
+"Tapa (Palindrome)",
+"Tapa (Rope)",
+"Tapa (Row)",
+"Tapa (Skyscrapers)",
+"Tapa (Transparent)",
+"Tapa (Windows)",
+"Tapa (Yajisan-Kazusan)",
+"Tapa-Like Loop",
+"Tapa-Like Loop (Regions)",
+"Tapa-Like Loop (Transparent)",
+"Tapa-Like Loop (Unequal Lengths)",
+"Tarectangle",
+"Tasquare",
+"Tatami",
+"Tatamibari",
+"Tatebo-Yokobo",
+"Tea Time",
+"Tentaisho a.k.a. Tentai Show, Spiral Galaxies, Galaxies, or Sym-a-Pix",
+"Tentaisho (Double)",
+"Tentaisho (Line)",
+"Tents a.k.a. Camping",
+"Tents (Double)",
+"Terra X",
+"Terra XX",
+"Tetroid a.k.a. Tetrominous",
+"Tetrokinds a.k.a. Tetorokainzu",
+"Tetraview",
+"Tetraview (Double)",
+"Tetris Islands",
+"Tetrochain a.k.a. Tetra Chain",
+"Tetrochain (Regions)",
+"Tetroscope",
+"Thermometer",
+"Tiger in the Woods",
+"Tile City",
+"Tilepaint a.k.a. Layout-Logic or Crazy Pavement",
+"Time Bomb",
+"Timid Dominoes",
+"Toichika",
+"Toichika 2",
+"TomTom",
+"TomTom (Cage Pairs)",
+"TomTom (No Touch)",
+"TomTom (Top Heavy)",
+"TomTom (Skyscrapers)",
+"Tonikaku",
+"Tontonbeya",
+"Top Heavy",
+"Tower Defense",
+"Trace Numbers",
+"Traffic Sign Maze",
+"Train Stations a.k.a. Railroad",
+"Transporter",
+"Tree Branch Place",
+"Tren a.k.a. Parking Lot",
+"Tren (Ghost)",
+"Tren (New)",
+"Tri-Place",
+"Tri-Place (Inverse)",
+"Tricklayer",
+"Trimino Divide",
+"Trio Cut",
+"Triple Back",
+"Tug of War",
+"Turf",
+"Turnkey",
+"Twist Turn",
+"Two-Tone Division",
+"Two Apiece",
+"Typified Squares",
+"U-Turns",
+"Unequal Length Maze",
+"Unlike Mosaic",
+"Uso-One",
+"Uso-Tatami",
+"Utopia",
+"Vagabond",
+"Vama",
+"View",
+"Vista",
+"Voxas",
+"Voxas (Tatami)",
+"Wa-suu Nori",
+"Wafusuma",
+"Wagiri",
+"Wall Maze a.k.a. Border Loop",
+"Walls",
+"Waotsukure",
+"Warp a.k.a. Warp Hole",
+"Wataridori",
+"Watchmen",
+"White Link",
+"Winddraughts",
+"Windows",
+"Wittgenstein Briquet a.k.a. Desk Place or Desks",
+"Wittgenstein Briquet (Tapa)",
+"Word Division",
+"Worms",
+"X-Box",
+"X-Sums",
+"Xerophile",
+"XO",
+"Yagit a.k.a. Yagi to Ookami, Goats and Wolves, Sheep and Wolves, or Shwolf",
+"Yajikabe",
+"Yajilin",
+"Yajilin (Antiknight)",
+"Yajilin (Battleships)",
+"Yajilin (Diagonal)",
+"Yajilin (Double)",
+"Yajilin (Even Rows/Columns)",
+"Yajilin (Minesweeper)",
+"Yajilin (Myopia)",
+"Yajilin (One Of)",
+"Yajilin (Regions)",
+"Yajilin (Short)",
+"Yajilin (Squares)",
+"Yajilin (Transparent)",
+"Yajisan-Kazusan",
+"Yajisan-Kazusan (Double)",
+"Yajisan-Kazusan (No 2x2)",
+"Yajisan-Sokoban",
+"Yajitatami",
+"Yin-Yang a.k.a. Shiromaru-Kuromaru",
+"Yin-Yang (Killer)",
+"Yonmasubunkatsu",
+"Yoque",
+"Yosenabe",
+"Zabajaba",
+"Zabuton",
+"Zebra",
+"Zoetrope",
+"01 Comparison",
+"12 Lines",
+"2-1 Tiles"
+];
+
+var items = []
+for(var i = 0; i < list.length; i++){
+    items.push({id: list[i], name: '', image: ''});
+}
+
+var myPicker = new picker.Picker({
+    items: items
+});
+
+var pickerUI = new PickerUI(myPicker, {
+    elements: {
+        pick: "#pick",
+        pass: "#pass",
+        undo: "#undo",
+        redo: "#redo",
+        evaluating: "#evaluating",
+        favorites: "#favorites"
+    }
+});
+
+pickerUI.initialize();
+
+/* Sortable favorites - you can safely remove this, and the Sortable.min.js script, if you don't want to be able to sort your favorite list. */
+var sortable = new Sortable(pickerUI.elem.favorites.get(0), {
+    draggable: '.item',
+    animation: 100,
+    onStart: function() {
+        pickerUI.elem.favorites.addClass("sorting");
+    },
+    onEnd: function() {
+        pickerUI.elem.favorites.removeClass("sorting");
+    },
+    onUpdate: function() {
+        myPicker.setFavorites(pickerUI.elem.favorites.children().map(function() {
+            return pickerUI.getItem(this);
+        }).get());
+        pickerUI.update(true);
+    }
+});
+/* End sortable favorites */
+</script>
+
+
+</body></html>
