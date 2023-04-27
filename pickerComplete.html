@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+<head>
 <meta name="viewport" content="initial-scale=1.0">
-<title>Picker Complete (with full list from Eric Fox's Puzzle Rules</title>
+<title>Picker Complete (with list from Eric Fox's puzzle list</title>
 <style>
 body {
     background:#FFF;
@@ -212,25 +213,26 @@ button.disabled:hover {
 <div id="container">
 
 <div id="picking">
-<ul id="evaluating" class="item-list" style="opacity: 1;"><li class="item"><span>Hashiwokakero</span></li><li class="item"><span>Regional Yajilin</span></li></ul>
+<ul id="evaluating" class="item-list">
+</ul>
 
-<p id="buttons"><button id="pick">Pick</button> <button id="pass">Pass</button> <button id="undo" class="">Undo</button> <button id="redo" class="disabled">Redo</button></p>
+<p id="buttons"><button id="pick">Pick</button> <button id="pass">Pass</button> <button id="undo">Undo</button> <button id="redo">Redo</button></p>
 </div>
 
 <div id="secondary">
 <h2>Found favorites</h2>
 
-<ol id="favorites" class="item-list"><li class="item"><span>Star Battle</span></li><li class="item"><span>Islands</span></li><li class="item"><span>ekawayeh</span></li><li class="item"><span>LITS</span></li><li class="item"><span>Tapa</span></li><li class="item"><span>Slitherlink</span></li><li class="item"><span>Akari</span></li><li class="item"><span>Fillomino</span></li><li class="item"><span>Tapa-Like Loop</span></li><li class="item"><span>Coral</span></li><li class="item"><span>Nurikabe</span></li><li class="item"><span>Sashigane</span></li></ol>
+<ol id="favorites" class="item-list">
+</ol>
 </div>
 </div>
-<script src="./Picker_files/jquery-1.12.4.min.js.download"></script>
-<script src="./Picker_files/picker.js.download"></script>
-<script src="./Picker_files/picker-ui.js.download"></script>
-<script src="./Picker_files/Sortable.min.js.download"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="picker.js"></script>
+<script src="picker-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.7.0/Sortable.min.js"></script>
 <script>
 'use strict';
-
-var list = [
+var puzzlelist = [
 "ABC Box",
 "Aho-ni-Narikire",
 "Aho-ni-Narikire (Fillomino)",
@@ -540,7 +542,7 @@ var list = [
 "Hundred",
 "Hydra",
 "Hypermetropia",
-"I Hope It’s Sunny",
+"I Hope It's Sunny",
 "I-Loop a.k.a. Irupu",
 "Icebarn",
 "Icebarn (X)",
@@ -560,7 +562,7 @@ var list = [
 "Irunuri",
 "Island",
 "Island Hopper",
-"It’s Yours",
+"It's Yours",
 "Ivy",
 "Japanese Arrows",
 "Japanese Arrows (Complete)",
@@ -1219,10 +1221,10 @@ var list = [
 ];
 
 var items = []
-for(var i = 0; i < list.length; i++){
-    items.push({id: list[i], name: '', image: ''});
+for(var i = 0; i < puzzlelist.length; i++){
+    items.push({id: puzzlelist[i], name: '', image: ''});
 }
-
+    
 var myPicker = new picker.Picker({
     items: items
 });
@@ -1259,6 +1261,5 @@ var sortable = new Sortable(pickerUI.elem.favorites.get(0), {
 });
 /* End sortable favorites */
 </script>
-
-
-</body></html>
+</body>
+</html>
